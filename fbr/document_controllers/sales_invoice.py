@@ -27,16 +27,16 @@ class SalesInvoice(SalesInvoiceController):
                 self.custom_qr_code = '/files/'+self.name+'_online_qrcode.svg'
                 api_log.response_data = frappe.as_json(response, indent=4)
                 api_log.save()
-                frappe.msgprint("Invoice successfully submitted to FBR Digital Invoicing.")
+                frappe.msgprint("Invoice successfully submitted to FBR Invoice.")
             else:
                 api_log.response_data = frappe.as_json(response, indent=4)
                 api_log.save()
                 frappe.log_error(
-                    title="FBR Digital Invoicing API Error",
+                    title="FBR Invoicing API Error",
                     message=frappe.as_json(response, indent=4)
                 )
                 frappe.throw(
-                    "Error in FBR Digital Invoicing" 
+                    "Error in FBR Invoicing" 
                 )
                   
                 
@@ -45,7 +45,7 @@ class SalesInvoice(SalesInvoiceController):
             api_log.save()
                 
             frappe.log_error(
-               title="FBR Digital Invoicing API Error",
+               title="FBR Invoicing API Error",
                message=frappe.as_json(response, indent=4)
             )
             

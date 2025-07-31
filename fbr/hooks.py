@@ -1,7 +1,7 @@
 app_name = "fbr"
 app_title = "FBR"
-app_publisher = "Safdar Ali
-app_description = "App to integrate FBR Digital Invoicing."
+app_publisher = "Safdar Ali"
+app_description = "App to integrate FBR."
 app_email = "safdar211@gmail.com"
 app_license = "mit"
 

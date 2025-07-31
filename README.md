@@ -1,6 +1,6 @@
 ### FBR Digital Invoicing 
 
-App to integrate FBR Digital Invoicing.
+App to integrate FBR.
 
 ### Installation
 
@@ -9,7 +9,7 @@ You can install this app using the [bench](https://github.com/frappe/bench) CLI:
 ```bash
 cd $PATH_TO_YOUR_BENCH
 bench get-app $URL_OF_THIS_REPO --branch develop
-bench install-app fbr_digital_invoicing
+bench install-app fbr
 ```
 
 ### Contributing
@@ -17,7 +17,7 @@ bench install-app fbr_digital_invoicing
 This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
 
 ```bash
-cd apps/fbr_digital_invoicing
+cd apps/fbr
 pre-commit install
 ```
 
