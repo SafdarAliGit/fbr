@@ -26,8 +26,8 @@
  "links": [],
  "modified": "2025-07-23 15:07:19.394867",
  "modified_by": "Administrator",
- "module": "FBR",
- "name": "FBR Settings",
+ "module": "Fbr",
+ "name": "Fbr Settings",
  "owner": "Administrator",
  "permissions": [
   {

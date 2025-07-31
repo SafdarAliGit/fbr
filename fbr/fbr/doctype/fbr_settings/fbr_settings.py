@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class FBRSettings(Document):
+class FbrSettings(Document):
 	pass

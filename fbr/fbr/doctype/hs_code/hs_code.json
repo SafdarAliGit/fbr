@@ -27,7 +27,7 @@
  "links": [],
  "modified": "2025-07-28 22:35:56.948654",
  "modified_by": "Administrator",
- "module": "FBR",
+ "module": "Fbr",
  "name": "HS Code",
  "naming_rule": "By fieldname",
  "owner": "Administrator",

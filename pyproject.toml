@@ -1,9 +1,9 @@
 [project]
-name = "fbr_digital_invoicing"
+name = "fbr"
 authors = [
-    { name = "Nasir Khan", email = "nasir@unisolerp.com"}
+    { name = "Safdar Ali", email = "safdar211@gmail.com"}
 ]
-description = "App to integrate FBR Digital Invoicing."
+description = "this is FBR integration."
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]

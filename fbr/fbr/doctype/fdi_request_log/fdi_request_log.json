@@ -33,7 +33,7 @@
  "links": [],
  "modified": "2025-07-23 16:44:27.392909",
  "modified_by": "Administrator",
- "module": "FBR",
+ "module": "Fbr",
  "name": "FDI Request Log",
  "owner": "Administrator",
  "permissions": [
