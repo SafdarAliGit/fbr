@@ -44,10 +44,10 @@ class SalesInvoice(SalesInvoiceController):
             api_log.error = frappe.as_json(e, indent=4)
             api_log.save()
                 
-            frappe.log_error(
-               title="FBR Invoicing API Error",
-               message=frappe.as_json(response, indent=4)
-            )
+            # frappe.log_error(
+            #    title="FBR Invoicing API Error",
+            #    message=frappe.as_json(response, indent=4)
+            # )
             
             frappe.throw(f"Error while submitting invoice to FBR: {str(e)}")
 
