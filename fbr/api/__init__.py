@@ -29,5 +29,6 @@ class FBRDigitalInvoicingAPI:
             )
             frappe.throw(f"Error in FBR Invoicing API: {request.text}")
         return request.json()
+        
     
 
