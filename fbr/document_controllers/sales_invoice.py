@@ -5,7 +5,6 @@ from frappe.utils import cint
 import pyqrcode
 
 
-
 class SalesInvoice(SalesInvoiceController):
     def on_submit(self):
         super().on_submit()
@@ -44,10 +43,10 @@ class SalesInvoice(SalesInvoiceController):
             api_log.error = frappe.as_json(e, indent=4)
             api_log.save()
                 
-            # frappe.log_error(
-            #    title="FBR Invoicing API Error",
-            #    message=frappe.as_json(response, indent=4)
-            # )
+            frappe.log_error(
+               title="FBR Invoicing API Error",
+               message=frappe.as_json(response, indent=4)
+            )
             
             frappe.throw(f"Error while submitting invoice to FBR: {str(e)}")
 
@@ -70,8 +69,8 @@ class SalesInvoice(SalesInvoiceController):
         data["buyerBusinessName"] = self.customer_name
         data["buyerProvince"] = self.territory
         data["buyerAddress"] = self.customer_address
-        data["buyerRegistrationType"] = "Unregistered" if not self.tax_id else "Registered"
-        data["scenarioId"] = "SN002" if not self.tax_id else "SN001"
+        data["buyerRegistrationType"] = self.fbr_sale_type.buyerregistrationtype or ""
+        data["scenarioId"] = self.fbr_sale_type.scenarioid
         
        
         data["items"] = self.get_items()
@@ -93,16 +92,16 @@ class SalesInvoice(SalesInvoiceController):
                 "quantity": item.qty,
                 "totalValues": round(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
                 "valueSalesExcludingST": round(item.amount, 2),
-                "fixedNotifiedValueOrRetailPrice": 0,  # Placeholder, adjust as needed
+                "fixedNotifiedValueOrRetailPrice":round(item.rate,2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,  # Placeholder, adjust as needed
                 "salesTaxApplicable": tax_amount if tax_amount > 0 else 0,  # Assuming first tax is sales tax
                 "salesTaxWithheldAtSource": 0,  # Placeholder, adjust as needed
                 "extraTax": "",  # Placeholder, adjust as needed
                 "furtherTax": 0,  # Assuming first tax is further tax
-                "sroScheduleNo": "",  # Placeholder, adjust as needed
+                "sroScheduleNo": self.fbr_sale_type.sroscheduleno or "",  # Placeholder, adjust as needed
                 "fedPayable": 0,  # Placeholder, adjust as needed
                 "discount": 0,
-                "saleType": "Goods at standard rate (default)",  # Adjust based on your logic
-                "sroItemSerialNo": ""  # Placeholder, adjust as needed
+                "saleType": self.fbr_sale_type.saletype,  # Adjust based on your logic
+                "sroItemSerialNo": self.fbr_sale_type.sroitemserialno or ""   
             }
             items.append(item_data)
         return items
@@ -121,4 +120,14 @@ class SalesInvoice(SalesInvoiceController):
             hs_code_doc.uom = uom
             hs_code_doc.save()
             return uom
+    @property
+    def fbr_sale_type(self):
+        custom_fbr_sale_type = self.custom_fbr_sale_type
+        if custom_fbr_sale_type:
+            sale_type = frappe.get_doc("FBR Sale Type", custom_fbr_sale_type)
+            return sale_type
+        else:
+            frappe.throw("Please select a valid Fbr Sale Type")
+        
+            
         
