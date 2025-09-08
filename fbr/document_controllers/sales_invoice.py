@@ -1,3 +1,4 @@
+from fbr.fbr.doctype import fbr_sale_type
 import frappe
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice as SalesInvoiceController
 from fbr.api import FBRDigitalInvoicingAPI  
@@ -69,7 +70,7 @@ class SalesInvoice(SalesInvoiceController):
         data["buyerBusinessName"] = self.customer_name
         data["buyerProvince"] = self.territory
         data["buyerAddress"] = self.customer_address
-        data["buyerRegistrationType"] = self.fbr_sale_type.buyerregistrationtype or ""
+        data["buyerRegistrationType"] = "Unregistered" if not self.tax_id else "Registered"
         data["scenarioId"] = self.fbr_sale_type.scenarioid
         
        
@@ -87,7 +88,7 @@ class SalesInvoice(SalesInvoiceController):
             item_data = {
                 "hsCode": item.custom_hs_code,  # Default HS Code if not set
                 "productDescription": item.description,
-                "rate": f"{cint(self.taxes[0].rate)}%",
+                "rate":"Exempt" if fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
                 "quantity": item.qty,
                 "totalValues": round(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
