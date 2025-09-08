@@ -124,7 +124,7 @@ class SalesInvoice(SalesInvoiceController):
     def fbr_sale_type(self):
         custom_fbr_sale_type = self.custom_fbr_sale_type
         if custom_fbr_sale_type:
-            sale_type = frappe.get_doc("FBR Sale Type", custom_fbr_sale_type)
+            sale_type = frappe.get_doc("Fbr Sale Type", custom_fbr_sale_type)
             return sale_type
         else:
             frappe.throw("Please select a valid Fbr Sale Type")
