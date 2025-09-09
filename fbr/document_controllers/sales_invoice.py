@@ -1,4 +1,4 @@
-from fbr.fbr.doctype import fbr_sale_type
+
 import frappe
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice as SalesInvoiceController
 from fbr.api import FBRDigitalInvoicingAPI  
