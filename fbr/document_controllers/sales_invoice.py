@@ -88,7 +88,7 @@ class SalesInvoice(SalesInvoiceController):
             item_data = {
                 "hsCode": item.custom_hs_code,  # Default HS Code if not set
                 "productDescription": item.description,
-                "rate":"Exempt" if fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
+                "rate":"Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
                 "quantity": item.qty,
                 "totalValues": round(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
