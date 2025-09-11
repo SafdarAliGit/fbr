@@ -13,10 +13,23 @@ class SalesInvoice(SalesInvoiceController):
         data = self.get_mapped_data()
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
+        settings = frappe.get_doc("Fbr Settings")
         try:
+            endpoint = ""
+            end_points = {
+                "production": "di_data/v1/di/postinvoicedata",
+                "sandbox": "di_data/v1/di/postinvoicedata_sb"
+            }
+            if settings.get("environment") == "production":
+                endpoint = end_points.get("production")
+            elif settings.get("environment") == "sandbox":
+                endpoint = end_points.get("sandbox")
+            else:
+                frappe.throw("Please select a valid environment")
+            
 
             api = FBRDigitalInvoicingAPI()
-            response = api.make_request("POST", "di_data/v1/di/postinvoicedata_sb", self.get_mapped_data())
+            response = api.make_request("POST", endpoint, self.get_mapped_data())
             resdata = response.get("validationResponse")
             
             if resdata.get("status") == "Valid":
