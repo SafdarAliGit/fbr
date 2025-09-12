@@ -34,9 +34,11 @@ class SalesInvoice(SalesInvoiceController):
             
             if resdata.get("status") == "Valid":
                 self.custom_fbr_invoice_no = response.get("invoiceNumber")
+                frappe.db.set_value("Sales Invoice", self.name, "custom_fbr_invoice_no", self.custom_fbr_invoice_no)
                 url = pyqrcode.create(self.custom_fbr_invoice_no)
                 url.svg(frappe.get_site_path()+'/public/files/'+self.name+'_online_qrcode.svg', scale=8)
                 self.custom_qr_code = '/files/'+self.name+'_online_qrcode.svg'
+                frappe.db.set_value("Sales Invoice", self.name, "custom_qr_code", self.custom_qr_code)
                 api_log.response_data = frappe.as_json(response, indent=4)
                 api_log.save()
                 frappe.msgprint("Invoice successfully submitted to FBR Invoice.")
