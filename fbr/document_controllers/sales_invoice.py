@@ -98,6 +98,7 @@ class SalesInvoice(SalesInvoiceController):
            
             uom = self.get_and_set_uom(item.custom_hs_code)
             tax_amount = round(item.amount * (self.taxes[0].rate /100), 2)
+            tax_withheld_at_source = round(item.amount * (self.taxes[1].rate /100), 2)
 
             item_data = {
                 "hsCode": item.custom_hs_code,  # Default HS Code if not set
@@ -109,7 +110,7 @@ class SalesInvoice(SalesInvoiceController):
                 "valueSalesExcludingST": round(item.amount, 2),
                 "fixedNotifiedValueOrRetailPrice":round(item.rate,2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,  # Placeholder, adjust as needed
                 "salesTaxApplicable": tax_amount if tax_amount > 0 else 0,  # Assuming first tax is sales tax
-                "salesTaxWithheldAtSource": 0,  # Placeholder, adjust as needed
+                "salesTaxWithheldAtSource": tax_withheld_at_source if tax_withheld_at_source > 0 else 0,  # Placeholder, adjust as needed
                 "extraTax": "",  # Placeholder, adjust as needed
                 "furtherTax": 0,  # Assuming first tax is further tax
                 "sroScheduleNo": self.fbr_sale_type.sroscheduleno or "",  # Placeholder, adjust as needed
