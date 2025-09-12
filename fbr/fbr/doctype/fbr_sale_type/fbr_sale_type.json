@@ -9,10 +9,11 @@
   "scenarioid",
   "saletype",
   "sroitemserialno",
-  "column_break_ngcj",
   "sroscheduleno",
+  "column_break_ngcj",
   "fixednotifiedvalueorretailprice",
-  "tax_exempted"
+  "tax_exempted",
+  "furthertax"
  ],
  "fields": [
   {
@@ -55,12 +56,18 @@
    "fieldname": "tax_exempted",
    "fieldtype": "Check",
    "label": "Tax Exempted"
+  },
+  {
+   "default": "0",
+   "fieldname": "furthertax",
+   "fieldtype": "Check",
+   "label": "furtherTax"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-08 21:44:28.789814",
+ "modified": "2025-09-12 17:57:56.351990",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Sale Type",
