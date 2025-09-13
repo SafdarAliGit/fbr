@@ -98,8 +98,12 @@ class SalesInvoice(SalesInvoiceController):
             further_tax = 0
             uom = self.get_and_set_uom(item.custom_hs_code)
             tax_amount = round(item.amount * (self.taxes[0].rate /100), 2)
-            if self.taxes[1].rate and self.taxes[1].rate > 0:
-                further_tax = round(item.amount * (self.taxes[1].rate /100), 2)
+            try:
+                tax_rate = self.taxes[1].rate
+                if tax_rate and tax_rate > 0:
+                    further_tax = round(item.amount * (tax_rate / 100), 2)
+            except IndexError:
+                further_tax = 0  
 
             item_data = {
                 "hsCode": item.custom_hs_code,  # Default HS Code if not set
