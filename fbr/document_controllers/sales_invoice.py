@@ -66,6 +66,7 @@ class SalesInvoice(SalesInvoiceController):
             frappe.throw(f"Error while submitting invoice to FBR: {str(e)}")
 
         # api_log.save()
+        
     def get_mapped_data(self):
 
         
