@@ -34,7 +34,7 @@
    "options": "sandbox\nproduction"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "make_items_unique",
    "fieldtype": "Check",
    "label": "Make Items Unique"
@@ -44,7 +44,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-09-16 21:25:56.597084",
+ "modified": "2025-09-16 22:06:06.308331",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Settings",
