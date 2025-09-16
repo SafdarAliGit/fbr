@@ -16,7 +16,7 @@ class SalesInvoice(SalesInvoiceController):
         settings = frappe.get_doc("Fbr Settings")
 
         make_items_unique = False
-        if settings.get("make_items_unique") == 1:
+        if settings.get("make_items_unique") and  settings.get("make_items_unique") == 1:
             make_items_unique = True
         else:
             make_items_unique = False
