@@ -95,6 +95,7 @@ class SalesInvoice(SalesInvoiceController):
         return data
     
     def get_items(self):
+        settings = frappe.get_doc("Fbr Settings")
         items = []
         for item in self.items:
             further_tax = 0
