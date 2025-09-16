@@ -14,12 +14,6 @@ class SalesInvoice(SalesInvoiceController):
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
         settings = frappe.get_doc("Fbr Settings")
-
-        make_items_unique = False
-        if settings.get("make_items_unique") and  settings.get("make_items_unique") == 1:
-            make_items_unique = True
-        else:
-            make_items_unique = False
         
         try:
             endpoint = ""
@@ -115,7 +109,7 @@ class SalesInvoice(SalesInvoiceController):
 
             item_data = {
                 "hsCode": item.custom_hs_code,  # Default HS Code if not set
-                "productDescription": f"{item.item_code}-{item.idx}" if make_items_unique else item.item_code,
+                "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
                 "rate":"Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
                 "quantity": item.qty,
