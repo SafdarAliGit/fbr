@@ -8,7 +8,8 @@
   "url",
   "token",
   "section_break_qx5j",
-  "environment"
+  "environment",
+  "make_items_unique"
  ],
  "fields": [
   {
@@ -31,13 +32,19 @@
    "fieldtype": "Select",
    "label": "Environment",
    "options": "sandbox\nproduction"
+  },
+  {
+   "default": "0",
+   "fieldname": "make_items_unique",
+   "fieldtype": "Check",
+   "label": "Make Items Unique"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-09-11 21:42:21.551444",
+ "modified": "2025-09-16 21:25:56.597084",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Settings",

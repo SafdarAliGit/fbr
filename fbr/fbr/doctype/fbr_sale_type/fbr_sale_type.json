@@ -13,8 +13,7 @@
   "column_break_ngcj",
   "fixednotifiedvalueorretailprice",
   "tax_exempted",
-  "furthertax",
-  "make_items_unique"
+  "furthertax"
  ],
  "fields": [
   {
@@ -63,18 +62,12 @@
    "fieldname": "furthertax",
    "fieldtype": "Check",
    "label": "furtherTax"
-  },
-  {
-   "default": "0",
-   "fieldname": "make_items_unique",
-   "fieldtype": "Check",
-   "label": "Make Items Unique"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-16 21:17:25.169901",
+ "modified": "2025-09-16 21:25:13.650233",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Sale Type",
