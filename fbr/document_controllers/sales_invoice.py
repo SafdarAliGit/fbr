@@ -11,9 +11,14 @@ class SalesInvoice(SalesInvoiceController):
         if not self.custom_post_to_fdi:
             return
         if self.fbr_sale_type.furthertax:
-            further_tax_rate = self.taxes[1].rate if self.taxes[1].rate else 0
-            if further_tax_rate <=0:
+            try:
+                rate = self.taxes[1].rate
+            except (IndexError, AttributeError):
+                rate = None
+
+            if not rate or rate <= 0:
                 frappe.throw("Please select a valid Further Tax Rate")
+
         data = self.get_mapped_data()
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
