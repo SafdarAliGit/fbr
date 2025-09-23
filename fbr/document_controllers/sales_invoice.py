@@ -42,7 +42,7 @@ class SalesInvoice(SalesInvoiceController):
             response = api.make_request("POST", endpoint, self.get_mapped_data())
             frappe.log_error(
                     title="FBR Invoicing API Error",
-                    message=frappe.as_json(response, indent=4)
+                    message=frappe.as_json(data, indent=4)
                 )
             resdata = response.get("validationResponse")
             
