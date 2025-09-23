@@ -123,7 +123,7 @@ class SalesInvoice(SalesInvoiceController):
                 "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
                 "rate":"Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
-                "quantity": int(item.qty),
+                "quantity": item.qty,
                 "totalValues": round(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
                 "valueSalesExcludingST": round(item.amount, 2),
                 "fixedNotifiedValueOrRetailPrice":round(item.rate,2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,  # Placeholder, adjust as needed
