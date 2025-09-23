@@ -40,6 +40,10 @@ class SalesInvoice(SalesInvoiceController):
 
             api = FBRDigitalInvoicingAPI()
             response = api.make_request("POST", endpoint, self.get_mapped_data())
+            frappe.log_error(
+                    title="FBR Invoicing API Error",
+                    message=frappe.as_json(response, indent=4)
+                )
             resdata = response.get("validationResponse")
             
             if resdata.get("status") == "Valid":
