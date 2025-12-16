@@ -3,6 +3,7 @@ from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice as
 from fbr.api import FBRDigitalInvoicingAPI  
 from frappe.utils import cint
 import pyqrcode
+from decimal import Decimal, ROUND_HALF_UP
 
 
 class SalesInvoice(SalesInvoiceController):
@@ -111,11 +112,11 @@ class SalesInvoice(SalesInvoiceController):
         for item in self.items:
             further_tax = 0
             uom = self.get_and_set_uom(item.custom_hs_code)
-            tax_amount = round(item.amount * (self.taxes[0].rate /100), 2)
+            tax_amount = self.round_half_up(item.amount * (self.taxes[0].rate /100), 2)
             try:
                 tax_rate = self.taxes[1].rate
                 if tax_rate and tax_rate > 0:
-                    further_tax = round(item.amount * (tax_rate / 100), 2)
+                    further_tax = self.round_half_up(item.amount * (tax_rate / 100), 2)
             except IndexError:
                 further_tax = 0  
 
@@ -125,9 +126,9 @@ class SalesInvoice(SalesInvoiceController):
                 "rate":"Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
                 "quantity": item.qty,
-                "totalValues": round(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
-                "valueSalesExcludingST": round(item.amount, 2),
-                "fixedNotifiedValueOrRetailPrice":round(item.rate,2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,  # Placeholder, adjust as needed
+                "totalValues": self.round_half_up(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
+                "valueSalesExcludingST": self.round_half_up(item.amount, 2),
+                "fixedNotifiedValueOrRetailPrice":self.round_half_up(item.rate,2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,  # Placeholder, adjust as needed
                 "salesTaxApplicable": tax_amount if tax_amount > 0 else 0,  # Assuming first tax is sales tax
                 "salesTaxWithheldAtSource": 0,  # Placeholder, adjust as needed
                 "extraTax": "",  # Placeholder, adjust as needed
@@ -163,6 +164,10 @@ class SalesInvoice(SalesInvoiceController):
             return sale_type
         else:
             frappe.throw("Please select a valid Fbr Sale Type")
+
+    def round_half_up(self,value, digits=2):
+        q = Decimal(10) ** -digits
+        return float(Decimal(str(value)).quantize(q, rounding=ROUND_HALF_UP))
         
             
         
