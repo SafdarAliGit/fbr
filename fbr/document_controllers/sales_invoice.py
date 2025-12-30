@@ -125,7 +125,7 @@ class SalesInvoice(SalesInvoiceController):
                 "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
                 "rate":"Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
-                "quantity": item.qty,
+                "quantity": item.weight if settings.get("send_weight") else item.qty,
                 "totalValues": self.round_half_up(item.amount + tax_amount, 2),  # Placeholder, adjust as needed
                 "valueSalesExcludingST": self.round_half_up(item.amount, 2),
                 "fixedNotifiedValueOrRetailPrice":self.round_half_up(item.rate,2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,  # Placeholder, adjust as needed

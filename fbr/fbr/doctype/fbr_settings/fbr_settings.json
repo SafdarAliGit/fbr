@@ -9,7 +9,8 @@
   "token",
   "section_break_qx5j",
   "environment",
-  "make_items_unique"
+  "make_items_unique",
+  "send_weight"
  ],
  "fields": [
   {
@@ -38,13 +39,19 @@
    "fieldname": "make_items_unique",
    "fieldtype": "Check",
    "label": "Make Items Unique"
+  },
+  {
+   "default": "0",
+   "description": "\n  Send Weight if checked <span style=\"font-size: 16px; color: green;\">&#x2611;</span>, weight value will be sent instead of qty\n\n",
+   "fieldname": "send_weight",
+   "fieldtype": "Check",
+   "label": "Send Weight"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-09-16 22:06:06.308331",
+ "modified": "2025-12-30 11:05:51.229277",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Settings",
@@ -61,7 +68,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
