@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-10 22:10:23.992593",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "company_tax_id",
+  "province",
+  "url",
+  "token",
+  "environment",
+  "make_items_unique",
+  "send_weight"
+ ],
+ "fields": [
+  {
+   "fetch_from": "company.tax_id",
+   "fieldname": "company_tax_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company Tax Id",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "URL",
+   "reqd": 1
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Token",
+   "reqd": 1
+  },
+  {
+   "default": "sandbox",
+   "fieldname": "environment",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Environment",
+   "options": "sandbox\nproduction"
+  },
+  {
+   "default": "1",
+   "fieldname": "make_items_unique",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Make Items Unique"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_weight",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Send Weight"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "company.custom_province",
+   "fieldname": "province",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Province",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-10 22:54:18.282889",
+ "modified_by": "Administrator",
+ "module": "Fbr",
+ "name": "Fbr Settings Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

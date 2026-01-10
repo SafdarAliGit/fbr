@@ -23,7 +23,7 @@ class SalesInvoice(SalesInvoiceController):
         data = self.get_mapped_data()
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
-        settings = frappe.get_doc("Fbr Settings")
+        settings = self.get_settings_item
         
         try:
             endpoint = ""
@@ -89,7 +89,7 @@ class SalesInvoice(SalesInvoiceController):
         
         data["sellerNTNCNIC"] = self.company_tax_id
         data["sellerBusinessName"] = self.company
-        data["sellerProvince"] = frappe.db.get_value("Company", self.company, "custom_province")  # Default to Sindh if not set
+        data["sellerProvince"] = self.get_settings_item.province
         # Uncomment the next line if you have a seller address field
         # data["sellerAddress"] =self.company_address
         
@@ -107,7 +107,7 @@ class SalesInvoice(SalesInvoiceController):
         return data
     
     def get_items(self):
-        settings = frappe.get_doc("Fbr Settings")
+        settings = self.get_settings_item
         items = []
         for item in self.items:
             further_tax = 0
@@ -170,4 +170,19 @@ class SalesInvoice(SalesInvoiceController):
         return float(Decimal(str(value)).quantize(q, rounding=ROUND_HALF_UP))
         
             
-        
+    @property
+    def get_settings_item(self):
+        """Get single row by company_tax_id"""
+        try:
+            row = frappe.db.get_value(
+                "Fbr Settings Item",
+                {"company_tax_id": self.company_tax_id},
+                ["*"],
+                as_dict=True
+            )
+            return row
+        except frappe.DoesNotExistError:
+            return None
+        except Exception as e:
+            frappe.log_error(f"Error fetching FBR item: {str(e)}")
+            return None 
