@@ -39,7 +39,7 @@ class SalesInvoice(SalesInvoiceController):
                 frappe.throw("Please select a valid environment")
             
 
-            api = FBRDigitalInvoicingAPI(self.company_tax_id)
+            api = FBRDigitalInvoicingAPI(self.get_settings_item)
             response = api.make_request("POST", endpoint, self.get_mapped_data())
             
             resdata = response.get("validationResponse")
@@ -147,7 +147,7 @@ class SalesInvoice(SalesInvoiceController):
         if frappe.db.exists("HS Code", hs_code):
             hs_code_doc = frappe.get_doc("HS Code", hs_code)
         
-        api = FBRDigitalInvoicingAPI(self.company_tax_id) 
+        api = FBRDigitalInvoicingAPI(self.get_settings_item) 
         response = api.make_request("GET", f"/pdi/v2/HS_UOM?hs_code={hs_code}&annexure_id=3")
         if response:
             #res = response.json()

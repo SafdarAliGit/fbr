@@ -4,9 +4,8 @@ import requests
 
 
 class FBRDigitalInvoicingAPI:
-    def __init__(self,company_tax_id):
-        self.company_tax_id = company_tax_id
-        settings = self.get_settings_item
+    def __init__(self,settings):
+        self.settings = settings
         self.base_url = settings.get("url")
         self.token = settings.get("token")
 
