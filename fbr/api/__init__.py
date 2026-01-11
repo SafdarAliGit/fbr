@@ -7,7 +7,7 @@ class FBRDigitalInvoicingAPI:
     def __init__(self,settings):
         self.settings = settings
         self.base_url = settings.get("url")
-        child_fbr_settings = frappe.get_doc("Fbr Settings Item", settings.get("name"))
+        child_fbr_settings = frappe.db.get_doc("Fbr Settings Item", settings.get("name"))
         self.token = child_fbr_settings.get_password("token")
        
     def init_request(self):
