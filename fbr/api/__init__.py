@@ -8,7 +8,7 @@ class FBRDigitalInvoicingAPI:
         self.company_tax_id = company_tax_id
         settings = self.get_settings_item
         self.base_url = settings.get("url")
-        self.token = settings.get_password("token")
+        self.token = settings.get("token")
 
     def init_request(self):
         self.headers = {
