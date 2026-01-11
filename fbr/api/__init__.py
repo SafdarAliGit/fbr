@@ -5,10 +5,10 @@ import requests
 
 class FBRDigitalInvoicingAPI:
     def __init__(self,settings):
-        self.settings = settings
-        frappe.error_log("TEST ERROR", f"url: {settings.get('url')}, token: {settings.get('token')}, environment: {settings.get('environment')}, company_tax_id: {settings.get('company_tax_id')}")
-        self.base_url = settings.get("url")
-        self.token = settings.get("token")
+        self.settings = settings[0]
+        frappe.error_log("TEST ERROR", f"url: {self.settings.get('url')}, token: {self.settings.get('token')}, environment: {self.settings.get('environment')}, company_tax_id: {self.settings.get('company_tax_id')}")
+        self.base_url = self.settings.get("url")
+        self.token = self.settings.get("token")
         frappe.log_error(
             title="FBR Invoicing API Error",
             message=f"Error in FBR Invoicing API: {settings}"
