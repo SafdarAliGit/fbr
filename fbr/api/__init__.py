@@ -4,8 +4,9 @@ import requests
 
 
 class FBRDigitalInvoicingAPI:
-    def __init__(self):
-        settings = frappe.get_doc("Fbr Settings")
+    def __init__(self,company_tax_id):
+        self.company_tax_id = company_tax_id
+        settings = self.get_settings_item
         self.base_url = settings.get("url")
         self.token = settings.get_password("token")
 
@@ -29,6 +30,20 @@ class FBRDigitalInvoicingAPI:
             )
             frappe.throw(f"Error in FBR Invoicing API: {request.text}")
         return request.json()
-        
-    
 
+    @property
+    def get_settings_item(self):
+        """Get single row by company_tax_id"""
+        try:
+            row = frappe.db.get_value(
+                "Fbr Settings Item",
+                {"company_tax_id": self.company_tax_id},
+                ["*"],
+                as_dict=True
+            )
+            return row
+        except frappe.DoesNotExistError:
+            return None
+        except Exception as e:
+            frappe.log_error(f"Error fetching FBR item: {str(e)}")
+            return None 
