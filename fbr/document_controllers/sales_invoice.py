@@ -170,38 +170,17 @@ class SalesInvoice(SalesInvoiceController):
         return float(Decimal(str(value)).quantize(q, rounding=ROUND_HALF_UP))
         
             
+    
     @property
     def get_settings_item(self):
-        """Get single row by company_tax_id with decrypted token"""
+        """Get single row by company_tax_id (Doc name)"""
         try:
-            # Get child document ID first
-            child_docname = frappe.db.get_value(
-                "Fbr Settings Item",
-                {"company_tax_id": self.company_tax_id},
-                "name"
-            )
-            
-            if not child_docname:
-                return None
-            
-            # Get the document to access all fields
-            child_doc = frappe.get_doc("Fbr Settings Item", child_docname)
-            
-            # Convert to dictionary
-            row = child_doc.as_dict()
-            
-            # Get decrypted token and replace masked value
-            decrypted_token = frappe.utils.password.get_decrypted_password(
-                "Fbr Settings Item",
-                child_docname,
-                "token"
-            )
-            
-            row["token"] = decrypted_token
-            return row
-            
+            # Fetch the doc by name
+            doc = frappe.get_doc("Fbr Settings Item", self.company_tax_id)
+            return doc.as_dict()  # convert to dict if needed
         except frappe.DoesNotExistError:
             return None
         except Exception as e:
             frappe.log_error(f"Error fetching FBR item: {str(e)}")
-            return None 
+            return None
+ 
