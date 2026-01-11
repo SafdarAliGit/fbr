@@ -8,7 +8,10 @@ class FBRDigitalInvoicingAPI:
         self.settings = settings
         self.base_url = settings.get("url")
         self.token = settings.get("token")
-
+        frappe.log_error(
+            title="FBR Invoicing API Error",
+            message=f"Error in FBR Invoicing API: {settings}"
+        )   
     def init_request(self):
         self.headers = {
             "Content-Type": "application/json",
@@ -20,7 +23,7 @@ class FBRDigitalInvoicingAPI:
 
     def make_request(self, method, endpint, data=None):
         self.init_request()
-        request = self.session.request(method, f"https://gw.fbr.gov.pk/{endpint}", json=data)
+        request = self.session.request(method, f"{self.base_url}/{endpint}", json=data)
         if request.status_code != 200:
             
             frappe.log_error(
