@@ -172,15 +172,34 @@ class SalesInvoice(SalesInvoiceController):
             
     @property
     def get_settings_item(self):
-        """Get single row by company_tax_id"""
+        """Get single row by company_tax_id with decrypted token"""
         try:
-            row = frappe.db.get_value(
+            # Get child document ID first
+            child_docname = frappe.db.get_value(
                 "Fbr Settings Item",
                 {"company_tax_id": self.company_tax_id},
-                ["*"],
-                as_dict=True
+                "name"
             )
+            
+            if not child_docname:
+                return None
+            
+            # Get the document to access all fields
+            child_doc = frappe.get_doc("Fbr Settings Item", child_docname)
+            
+            # Convert to dictionary
+            row = child_doc.as_dict()
+            
+            # Get decrypted token and replace masked value
+            decrypted_token = frappe.utils.password.get_decrypted_password(
+                "Fbr Settings Item",
+                child_docname,
+                "token"
+            )
+            
+            row["token"] = decrypted_token
             return row
+            
         except frappe.DoesNotExistError:
             return None
         except Exception as e:
