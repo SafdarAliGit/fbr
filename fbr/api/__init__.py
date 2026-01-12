@@ -25,7 +25,7 @@ class FBRDigitalInvoicingAPI:
             title="Checking urls",
             message=f"Request: {method} {self.base_url}/{endpint} {data}"
         )
-        request = self.session.request(method, f"{self.base_url}/{endpint}", json=data)
+        request = self.session.request(method, f"https://gw.fbr.gov.pk{endpint}", json=data)
         if request.status_code != 200:
             
             frappe.log_error(
