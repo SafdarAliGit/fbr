@@ -1,18 +1,11 @@
 import frappe
 import requests
 
-
 class FBRDigitalInvoicingAPI:
     def __init__(self, settings):
         self.settings = settings
-        self.base_url = "https://gw.fbr.gov.pk"
-
-        settings_doc = frappe.get_doc(
-            "Fbr Settings Item",
-            self.settings.get("company_tax_id")
-        )
-
-        # Correct way to read Password field
+        self.base_url = self.settings.get("url")
+        settings_doc = frappe.get_doc("Fbr Settings Item", self.settings.get("company_tax_id"))
         self.token = settings_doc.get_password("token")
 
     def init_request(self):
@@ -24,13 +17,13 @@ class FBRDigitalInvoicingAPI:
         self.session.headers.update(self.headers)
 
     def make_request(self, method, endpoint, data=None):
+        """Make API request to FBR with proper error handling."""
         self.init_request()
 
-        # ✅ ensure endpoint always starts with /
         if not endpoint.startswith("/"):
             endpoint = "/" + endpoint
 
-        url = f"{self.base_url}{endpoint}"
+        url = f"https://gw.fbr.gov.pk{endpoint}"
 
         try:
             response = self.session.request(

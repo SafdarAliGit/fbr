@@ -188,84 +188,70 @@
 #             frappe.log_error(f"Error fetching FBR item: {str(e)}")
 #             return None
  
- import frappe
+import frappe
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice as SalesInvoiceController
 from fbr.api import FBRDigitalInvoicingAPI
 from frappe.utils import cint
 import pyqrcode
 from decimal import Decimal, ROUND_HALF_UP
-import json
 
 
 class SalesInvoice(SalesInvoiceController):
-
     def on_submit(self):
         super().on_submit()
 
         if not self.custom_post_to_fdi:
             return
 
-        settings = self.get_settings_item
-
-        # Validate Further Tax
+        # Validate Further Tax Rate if required
         if self.fbr_sale_type.furthertax:
             try:
                 rate = self.taxes[1].rate
             except (IndexError, AttributeError):
                 rate = None
-
             if not rate or rate <= 0:
                 frappe.throw("Please select a valid Further Tax Rate")
 
         data = self.get_mapped_data()
-
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
+        api_log.save()
 
+        settings = self.get_settings_item
+        endpoint = ""
+
+        end_points = {
+            "production": "di_data/v1/di/postinvoicedata",
+            "sandbox": "di_data/v1/di/postinvoicedata_sb"
+        }
+
+        if settings.get("environment") == "production":
+            endpoint = end_points.get("production")
+        elif settings.get("environment") == "sandbox":
+            endpoint = end_points.get("sandbox")
+        else:
+            frappe.throw("Please select a valid environment")
+
+        api = FBRDigitalInvoicingAPI(settings)
         response = None
 
         try:
-            end_points = {
-                "production": "di_data/v1/di/postinvoicedata",
-                "sandbox": "di_data/v1/di/postinvoicedata_sb"
-            }
-
-            endpoint = end_points.get(settings.environment)
-            if not endpoint:
-                frappe.throw("Please select a valid environment")
-
-            api = FBRDigitalInvoicingAPI(settings.as_dict())
             response = api.make_request("POST", endpoint, data)
+            resdata = response.get("validationResponse", {})
 
-            resdata = response.get("validationResponse")
-
-            if resdata and resdata.get("status") == "Valid":
+            if resdata.get("status") == "Valid":
                 safe_name = self.name.replace("/", "-")
-
                 self.custom_fbr_invoice_no = response.get("invoiceNumber")
-                frappe.db.set_value(
-                    "Sales Invoice",
-                    self.name,
-                    "custom_fbr_invoice_no",
-                    self.custom_fbr_invoice_no
-                )
+                frappe.db.set_value("Sales Invoice", self.name, "custom_fbr_invoice_no", self.custom_fbr_invoice_no)
 
-                qr = pyqrcode.create(self.custom_fbr_invoice_no)
-                qr_path = f"/public/files/{safe_name}_online_qrcode.svg"
-                qr.svg(frappe.get_site_path() + qr_path, scale=8)
-
-                self.custom_qr_code = qr_path.replace("/public", "")
-                frappe.db.set_value(
-                    "Sales Invoice",
-                    self.name,
-                    "custom_qr_code",
-                    self.custom_qr_code
-                )
+                url = pyqrcode.create(self.custom_fbr_invoice_no)
+                url.svg(frappe.get_site_path() + '/public/files/' + safe_name + '_online_qrcode.svg', scale=8)
+                self.custom_qr_code = '/files/' + safe_name + '_online_qrcode.svg'
+                frappe.db.set_value("Sales Invoice", self.name, "custom_qr_code", self.custom_qr_code)
 
                 api_log.response_data = frappe.as_json(response, indent=4)
                 api_log.save()
-                frappe.msgprint("Invoice successfully submitted to FBR.")
-
+                frappe.msgprint("Invoice successfully submitted to FBR Invoice.")
             else:
                 api_log.response_data = frappe.as_json(response, indent=4)
                 api_log.save()
@@ -274,40 +260,33 @@ class SalesInvoice(SalesInvoiceController):
                     message=frappe.as_json(response, indent=4)
                 )
                 frappe.throw("Error in FBR Invoicing")
-
         except Exception as e:
-            api_log.error = str(e)
+            api_log.error = frappe.as_json(str(e))
             api_log.save()
-
             frappe.log_error(
-                title="FBR Invoicing Exception",
-                message=str(e)
+                title="FBR Invoicing API Exception",
+                message=frappe.as_json(str(e))
             )
             frappe.throw(f"Error while submitting invoice to FBR: {str(e)}")
 
-    # --------------------------------------------------------------------
-
     def get_mapped_data(self):
-        settings = self.get_settings_item
+        data = {}
+        data["invoiceType"] = "Sale Invoice"
+        data["invoiceDate"] = self.posting_date
 
-        data = {
-            "invoiceType": "Sale Invoice",
-            "invoiceDate": self.posting_date,
-            "sellerNTNCNIC": self.company_tax_id,
-            "sellerBusinessName": self.company,
-            "sellerProvince": settings.province,
-            "buyerNTNCNIC": self.tax_id or "",
-            "buyerBusinessName": self.customer_name,
-            "buyerProvince": self.territory,
-            "buyerAddress": self.customer_address,
-            "buyerRegistrationType": "Registered" if self.tax_id else "Unregistered",
-            "scenarioId": self.fbr_sale_type.scenarioid,
-            "items": self.get_items()
-        }
+        data["sellerNTNCNIC"] = self.company_tax_id
+        data["sellerBusinessName"] = self.company
+        data["sellerProvince"] = self.get_settings_item.province
 
+        data["buyerNTNCNIC"] = self.tax_id or ""
+        data["buyerBusinessName"] = self.customer_name
+        data["buyerProvince"] = self.territory
+        data["buyerAddress"] = self.customer_address
+        data["buyerRegistrationType"] = "Unregistered" if not self.tax_id else "Registered"
+        data["scenarioId"] = self.fbr_sale_type.scenarioid
+
+        data["items"] = self.get_items()
         return data
-
-    # --------------------------------------------------------------------
 
     def get_items(self):
         settings = self.get_settings_item
@@ -316,40 +295,25 @@ class SalesInvoice(SalesInvoiceController):
         for item in self.items:
             further_tax = 0
             uom = self.get_and_set_uom(item.custom_hs_code)
-
-            tax_amount = self.round_half_up(
-                item.amount * (self.taxes[0].rate / 100), 2
-            )
+            tax_amount = self.round_half_up(item.amount * (self.taxes[0].rate / 100), 2)
 
             try:
                 tax_rate = self.taxes[1].rate
                 if tax_rate and tax_rate > 0:
-                    further_tax = self.round_half_up(
-                        item.amount * (tax_rate / 100), 2
-                    )
+                    further_tax = self.round_half_up(item.amount * (tax_rate / 100), 2)
             except IndexError:
-                pass
+                further_tax = 0
 
             item_data = {
                 "hsCode": item.custom_hs_code,
-                "productDescription": (
-                    f"{item.item_code}-{item.idx}"
-                    if settings.make_items_unique
-                    else item.item_code
-                ),
-                "rate": "Exempt"
-                if self.fbr_sale_type.tax_exempted
-                else f"{cint(self.taxes[0].rate)}%",
+                "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
+                "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
-                "quantity": item.weight if settings.send_weight else item.qty,
+                "quantity": item.weight if settings.get("send_weight") else item.qty,
                 "totalValues": self.round_half_up(item.amount + tax_amount, 2),
                 "valueSalesExcludingST": self.round_half_up(item.amount, 2),
-                "fixedNotifiedValueOrRetailPrice": (
-                    self.round_half_up(item.rate, 2)
-                    if self.fbr_sale_type.fixednotifiedvalueorretailprice
-                    else 0
-                ),
-                "salesTaxApplicable": tax_amount or 0,
+                "fixedNotifiedValueOrRetailPrice": self.round_half_up(item.rate, 2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,
+                "salesTaxApplicable": tax_amount if tax_amount > 0 else 0,
                 "salesTaxWithheldAtSource": 0,
                 "extraTax": "",
                 "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
@@ -364,56 +328,43 @@ class SalesInvoice(SalesInvoiceController):
 
         return items
 
-    # --------------------------------------------------------------------
-
     def get_and_set_uom(self, hs_code):
+        hs_code_doc = frappe.new_doc("HS Code")
         if frappe.db.exists("HS Code", hs_code):
-            return frappe.get_value("HS Code", hs_code, "uom")
+            hs_code_doc = frappe.get_doc("HS Code", hs_code)
 
         settings = self.get_settings_item
-        api = FBRDigitalInvoicingAPI(settings.as_dict())
+        api = FBRDigitalInvoicingAPI(settings)
 
-        response = api.make_request(
-            "GET",
-            f"/pdi/v2/HS_UOM?hs_code={hs_code}&annexure_id=3"
-        )
-
-        if not response or not isinstance(response, list):
-            frappe.throw(f"Invalid UOM response for HS Code {hs_code}")
-
-        uom = response[0].get("description")
-        if not uom:
-            frappe.throw(f"UOM not found for HS Code {hs_code}")
-
-        hs_code_doc = frappe.new_doc("HS Code")
-        hs_code_doc.hs_code = hs_code
-        hs_code_doc.uom = uom
-        hs_code_doc.save()
-
-        return uom
-
-    # --------------------------------------------------------------------
+        try:
+            response = api.make_request("GET", f"/pdi/v2/HS_UOM?hs_code={hs_code}&annexure_id=3")
+            if response:
+                uom = response[0].get("description")
+                hs_code_doc.hs_code = hs_code
+                hs_code_doc.uom = uom
+                hs_code_doc.save()
+                return uom
+        except Exception:
+            return "Nos"
 
     @property
     def fbr_sale_type(self):
-        if not self.custom_fbr_sale_type:
-            frappe.throw("Please select a valid FBR Sale Type")
-        return frappe.get_doc("Fbr Sale Type", self.custom_fbr_sale_type)
-
-    # --------------------------------------------------------------------
+        if self.custom_fbr_sale_type:
+            return frappe.get_doc("Fbr Sale Type", self.custom_fbr_sale_type)
+        else:
+            frappe.throw("Please select a valid Fbr Sale Type")
 
     def round_half_up(self, value, digits=2):
         q = Decimal(10) ** -digits
         return float(Decimal(str(value)).quantize(q, rounding=ROUND_HALF_UP))
 
-    # --------------------------------------------------------------------
-
     @property
     def get_settings_item(self):
         try:
-            return frappe.get_doc("Fbr Settings Item", self.company_tax_id)
+            doc = frappe.get_doc("Fbr Settings Item", self.company_tax_id)
+            return doc.as_dict()
         except frappe.DoesNotExistError:
-            frappe.throw("FBR Settings not found for this Company Tax ID")
+            return None
         except Exception as e:
-            frappe.log_error(str(e), "FBR Settings Fetch Error")
-            frappe.throw("Unable to load FBR Settings")
+            frappe.log_error(f"Error fetching FBR item: {str(e)}")
+            return None
