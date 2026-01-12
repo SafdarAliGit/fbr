@@ -21,6 +21,10 @@ class FBRDigitalInvoicingAPI:
 
     def make_request(self, method, endpint, data=None):
         self.init_request()
+        frappe.log_error(
+            title="Checking urls",
+            message=f"Request: {method} {self.base_url}/{endpint} {data}"
+        )
         request = self.session.request(method, f"{self.base_url}/{endpint}", json=data)
         if request.status_code != 200:
             
