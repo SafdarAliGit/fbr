@@ -40,6 +40,7 @@ class SalesInvoice(SalesInvoiceController):
                 frappe.throw("Please select a valid environment")
             
             settings = self.get_settings_item
+            frappe.throw(f"environment: {settings.get('environment')}, url: {settings.get('url')}, token: {settings.get('token')}, company_tax_id: {settings.get('company_tax_id')}, province: {settings.get('province')}",company_tax_id=settings.get('company_tax_id'))
             api = FBRDigitalInvoicingAPI(settings)
             response = api.make_request("POST", endpoint, self.get_mapped_data())
             
