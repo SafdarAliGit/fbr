@@ -5,23 +5,31 @@ import requests
 class FBRDigitalInvoicingAPI:
     def __init__(self, settings):
         self.settings = settings
-        self.base_url = self.settings.get("url")
+        self.base_url = "https://gw.fbr.gov.pk"
 
-        # Fetch token safely
         settings_doc = frappe.get_doc(
             "Fbr Settings Item",
             self.settings.get("company_tax_id")
         )
+
+        # Correct way to read Password field
         self.token = settings_doc.get_password("token")
 
-        # Initialize session once
-        self.session = requests.Session()
-        self.session.headers.update({
+    def init_request(self):
+        self.headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.token}"
-        })
+        }
+        self.session = requests.Session()
+        self.session.headers.update(self.headers)
 
     def make_request(self, method, endpoint, data=None):
+        self.init_request()
+
+        # ✅ ensure endpoint always starts with /
+        if not endpoint.startswith("/"):
+            endpoint = "/" + endpoint
+
         url = f"{self.base_url}{endpoint}"
 
         try:
@@ -33,21 +41,16 @@ class FBRDigitalInvoicingAPI:
             )
         except requests.exceptions.RequestException as e:
             frappe.log_error(
-                title="FBR API Connection Error",
+                title="FBR Invoicing API Connection Error",
                 message=str(e)
             )
-            frappe.throw("Unable to connect to FBR API")
+            frappe.throw("Unable to connect to FBR Invoicing API")
 
-        # Accept all successful HTTP codes
-        if not response.ok:
+        if response.status_code != 200:
             frappe.log_error(
                 title="FBR Invoicing API Error",
                 message=response.text
             )
             frappe.throw(f"Error in FBR Invoicing API: {response.text}")
 
-        # Some responses may not return JSON
-        try:
-            return response.json()
-        except ValueError:
-            return response.text
+        return response.json()
