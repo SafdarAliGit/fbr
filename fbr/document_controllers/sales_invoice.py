@@ -4,6 +4,7 @@ from fbr.api import FBRDigitalInvoicingAPI
 from frappe.utils import cint
 import pyqrcode
 from decimal import Decimal, ROUND_HALF_UP
+import json
 
 
 class SalesInvoice(SalesInvoiceController):
