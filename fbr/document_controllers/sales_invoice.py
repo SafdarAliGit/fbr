@@ -25,7 +25,7 @@ class SalesInvoice(SalesInvoiceController):
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
         settings = self.get_settings_item
-        frappe.throw(f"environment: {settings.get('environment')}, url: {settings.get('url')}")
+        # frappe.throw(f"environment: {settings.get('environment')}, url: {settings.get('url')}")
         try:
             endpoint = ""
             end_points = {

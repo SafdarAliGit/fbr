@@ -2,36 +2,52 @@ import frappe
 import requests
 
 
-
 class FBRDigitalInvoicingAPI:
-    def __init__(self,settings):
+    def __init__(self, settings):
         self.settings = settings
         self.base_url = self.settings.get("url")
-        settings_doc = frappe.get_doc("Fbr Settings Item", self.settings.get("company_tax_id"))
+
+        # Fetch token safely
+        settings_doc = frappe.get_doc(
+            "Fbr Settings Item",
+            self.settings.get("company_tax_id")
+        )
         self.token = settings_doc.get_password("token")
-       
-    def init_request(self):
-        self.headers = {
+
+        # Initialize session once
+        self.session = requests.Session()
+        self.session.headers.update({
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.token}"
-        }
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
+        })
 
+    def make_request(self, method, endpoint, data=None):
+        url = f"{self.base_url}{endpoint}"
 
-    def make_request(self, method, endpint, data=None):
-        self.init_request()
-        frappe.log_error(
-            title="Checking urls",
-            message=f"Request: {method} {self.base_url}/{endpint} {data}"
-        )
-        request = self.session.request(method, f"https://gw.fbr.gov.pk{endpint}", json=data)
-        if request.status_code != 200:
-            
+        try:
+            response = self.session.request(
+                method=method,
+                url=url,
+                json=data,
+                timeout=30
+            )
+        except requests.exceptions.RequestException as e:
+            frappe.log_error(
+                title="FBR API Connection Error",
+                message=str(e)
+            )
+            frappe.throw("Unable to connect to FBR API")
+
+        # Accept all successful HTTP codes
+        if not response.ok:
             frappe.log_error(
                 title="FBR Invoicing API Error",
-                message=f"Error in FBR Invoicing API: {request.text}"
+                message=response.text
             )
-            frappe.throw(f"Error in FBR Invoicing API: {request.text}")
-        return request.json()
+            frappe.throw(f"Error in FBR Invoicing API: {response.text}")
 
+        # Some responses may not return JSON
+        try:
+            return response.json()
+        except ValueError:
+            return response.text
