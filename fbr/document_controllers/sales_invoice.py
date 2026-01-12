@@ -24,6 +24,10 @@ class SalesInvoice(SalesInvoiceController):
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
         settings = self.get_settings_item
+        frappe.log_error(
+            title="Settings",
+            message=f"{json.dumps(settings, indent=4)}"
+        )
         
         try:
             endpoint = ""
@@ -149,7 +153,7 @@ class SalesInvoice(SalesInvoiceController):
 
         settings = self.get_settings_item
         api = FBRDigitalInvoicingAPI(settings) 
-        
+
         response = api.make_request("GET", f"/pdi/v2/HS_UOM?hs_code={hs_code}&annexure_id=3")
         if response:
             #res = response.json()
