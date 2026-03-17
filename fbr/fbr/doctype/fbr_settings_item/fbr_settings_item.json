@@ -68,7 +68,8 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fetch_from": "company.custom_province",
@@ -81,7 +82,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-11 23:26:03.206455",
+ "modified": "2026-03-17 14:20:03.807212",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Settings Item",

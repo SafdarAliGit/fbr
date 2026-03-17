@@ -85,7 +85,7 @@ class SalesInvoice(SalesInvoiceController):
         data["invoiceType"] = "Sale Invoice"
         data["invoiceDate"] = self.posting_date
 
-        data["sellerNTNCNIC"] = self.company_tax_id
+        data["sellerNTNCNIC"] = self.get_settings_item.company_tax_id
         data["sellerBusinessName"] = self.company
         data["sellerProvince"] = self.get_settings_item.province
 
@@ -172,8 +172,25 @@ class SalesInvoice(SalesInvoiceController):
     @property
     def get_settings_item(self):
         try:
-            doc = frappe.get_doc("Fbr Settings Item", self.company_tax_id)
+            # Get default company
+            default_company = frappe.defaults.get_global_default("company")
+
+            if not default_company:
+                frappe.throw("No default company set in Global Defaults")
+
+            # Filter by company field
+            doc_name = frappe.db.get_value(
+                "Fbr Settings Item",
+                {"company": default_company},
+                "name"
+            )
+
+            if not doc_name:
+                return None
+
+            doc = frappe.get_doc("Fbr Settings Item", doc_name)
             return doc.as_dict()
+
         except frappe.DoesNotExistError:
             return None
         except Exception as e:
