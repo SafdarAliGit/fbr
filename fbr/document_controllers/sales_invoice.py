@@ -120,7 +120,7 @@ class SalesInvoice(SalesInvoiceController):
                 "productDescription": f"{self.custom_hs_code}",
                 "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
-                "quantity": self.total_qty,
+                "quantity": self.round_half_up(self.total_qty, 2),
                 "totalValues": self.round_half_up(self.total + tax_amount, 2),
                 "valueSalesExcludingST": self.round_half_up(self.total, 2),
                 "fixedNotifiedValueOrRetailPrice": 0,
