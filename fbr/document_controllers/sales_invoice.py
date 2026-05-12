@@ -103,27 +103,27 @@ class SalesInvoice(SalesInvoiceController):
         settings = self.get_settings_item
         items = []
 
-        for item in self.items:
+        if settings.send_single_item:
             further_tax = 0
-            uom = self.get_and_set_uom(item.custom_hs_code)
-            tax_amount = self.round_half_up(item.amount * (self.taxes[0].rate / 100), 2)
+            uom = self.get_and_set_uom(self.custom_hs_code)
+            tax_amount = self.round_half_up(self.total * (self.taxes[0].rate / 100), 2)
 
             try:
                 tax_rate = self.taxes[1].rate
                 if tax_rate and tax_rate > 0:
-                    further_tax = self.round_half_up(item.amount * (tax_rate / 100), 2)
+                    further_tax = self.round_half_up(self.total * (tax_rate / 100), 2)
             except IndexError:
                 further_tax = 0
 
-            item_data = {
-                "hsCode": item.custom_hs_code,
-                "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
+            item_data_single = {
+                "hsCode": self.custom_hs_code,
+                "productDescription": f"{self.custom_hs_code}",
                 "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                 "uoM": uom,
-                "quantity": item.weight if settings.get("send_weight") else item.qty,
-                "totalValues": self.round_half_up(item.amount + tax_amount, 2),
-                "valueSalesExcludingST": self.round_half_up(item.amount, 2),
-                "fixedNotifiedValueOrRetailPrice": self.round_half_up(item.rate, 2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,
+                "quantity": self.total_qty,
+                "totalValues": self.round_half_up(self.total + tax_amount, 2),
+                "valueSalesExcludingST": self.round_half_up(self.total, 2),
+                "fixedNotifiedValueOrRetailPrice": 0,
                 "salesTaxApplicable": tax_amount if tax_amount > 0 else 0,
                 "salesTaxWithheldAtSource": 0,
                 "extraTax": "",
@@ -135,7 +135,43 @@ class SalesInvoice(SalesInvoiceController):
                 "sroItemSerialNo": self.fbr_sale_type.sroitemserialno or ""
             }
 
-            items.append(item_data)
+            items.append(item_data_single)
+            
+        else:
+
+            for item in self.items:
+                further_tax = 0
+                uom = self.get_and_set_uom(item.custom_hs_code)
+                tax_amount = self.round_half_up(item.amount * (self.taxes[0].rate / 100), 2)
+
+                try:
+                    tax_rate = self.taxes[1].rate
+                    if tax_rate and tax_rate > 0:
+                        further_tax = self.round_half_up(item.amount * (tax_rate / 100), 2)
+                except IndexError:
+                    further_tax = 0
+
+                item_data = {
+                    "hsCode": item.custom_hs_code,
+                    "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
+                    "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
+                    "uoM": uom,
+                    "quantity": item.weight if settings.get("send_weight") else item.qty,
+                    "totalValues": self.round_half_up(item.amount + tax_amount, 2),
+                    "valueSalesExcludingST": self.round_half_up(item.amount, 2),
+                    "fixedNotifiedValueOrRetailPrice": self.round_half_up(item.rate, 2) if self.fbr_sale_type.fixednotifiedvalueorretailprice else 0,
+                    "salesTaxApplicable": tax_amount if tax_amount > 0 else 0,
+                    "salesTaxWithheldAtSource": 0,
+                    "extraTax": "",
+                    "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
+                    "sroScheduleNo": self.fbr_sale_type.sroscheduleno or "",
+                    "fedPayable": 0,
+                    "discount": 0,
+                    "saleType": self.fbr_sale_type.saletype,
+                    "sroItemSerialNo": self.fbr_sale_type.sroitemserialno or ""
+                }
+
+                items.append(item_data)
 
         return items
 
