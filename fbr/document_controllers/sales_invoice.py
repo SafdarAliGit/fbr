@@ -232,3 +232,6 @@ class SalesInvoice(SalesInvoiceController):
         except Exception as e:
             frappe.log_error(f"Error fetching FBR item: {str(e)}")
             return None
+
+
+        
