@@ -89,11 +89,11 @@ class SalesInvoice(SalesInvoiceController):
         data["sellerBusinessName"] = self.company
         data["sellerProvince"] = self.get_settings_item.province
 
-        data["buyerNTNCNIC"] = self.tax_id or ""
+        data["buyerNTNCNIC"] = self.tax_id
         data["buyerBusinessName"] = self.customer_name
         data["buyerProvince"] = self.territory
         data["buyerAddress"] = self.customer_address
-        data["buyerRegistrationType"] = "Unregistered" if not self.tax_id else "Registered"
+        data["buyerRegistrationType"] = self.tax_registration or ""
         data["scenarioId"] = self.fbr_sale_type.scenarioid
 
         data["items"] = self.get_items()
@@ -128,11 +128,11 @@ class SalesInvoice(SalesInvoiceController):
                 "salesTaxWithheldAtSource": 0,
                 "extraTax": "",
                 "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
-                "sroScheduleNo": self.fbr_sale_type.sroscheduleno or "",
+                "sroScheduleNo": self.sroscheduleno or "",
                 "fedPayable": 0,
                 "discount": 0,
                 "saleType": self.fbr_sale_type.saletype,
-                "sroItemSerialNo": self.fbr_sale_type.sroitemserialno or ""
+                "sroItemSerialNo": self.sroitemserialno or ""
             }
 
             items.append(item_data_single)
@@ -164,11 +164,11 @@ class SalesInvoice(SalesInvoiceController):
                     "salesTaxWithheldAtSource": 0,
                     "extraTax": "",
                     "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
-                    "sroScheduleNo": self.fbr_sale_type.sroscheduleno or "",
+                    "sroScheduleNo": self.sroscheduleno or "",
                     "fedPayable": 0,
                     "discount": 0,
                     "saleType": self.fbr_sale_type.saletype,
-                    "sroItemSerialNo": self.fbr_sale_type.sroitemserialno or ""
+                    "sroItemSerialNo": self.sroitemserialno or ""
                 }
 
                 items.append(item_data)
