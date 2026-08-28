@@ -94,6 +94,7 @@ class SalesInvoice(SalesInvoiceController):
         data["buyerProvince"] = self.territory
         data["buyerAddress"] = self.customer_address
         data["buyerRegistrationType"] = self.tax_registration or ""
+        data["invoiceRefNo"] = getattr(self, "ctpl_ref", "") or ""
         data["scenarioId"] = self.fbr_sale_type.scenarioid
 
         data["items"] = self.get_items()
