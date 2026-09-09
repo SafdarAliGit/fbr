@@ -2,7 +2,7 @@
 import frappe
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice as SalesInvoiceController
 from fbr.api import FBRDigitalInvoicingAPI
-from frappe.utils import cint
+from frappe.utils import cint, getdate
 import pyqrcode
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -83,7 +83,7 @@ class SalesInvoice(SalesInvoiceController):
     def get_mapped_data(self):
         data = {}
         data["invoiceType"] = "Sale Invoice"
-        data["invoiceDate"] = self.posting_date
+        data["invoiceDate"] = getdate(self.posting_date).strftime("%Y-%m-%d")
 
         data["sellerNTNCNIC"] = self.get_settings_item.company_tax_id
         data["sellerBusinessName"] = self.company
