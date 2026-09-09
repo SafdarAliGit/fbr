@@ -129,11 +129,11 @@ class SalesInvoice(SalesInvoiceController):
                 "salesTaxWithheldAtSource": 0,
                 "extraTax": "",
                 "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
-                "sroScheduleNo": self.sroscheduleno or "",
+                "sroScheduleNo": getattr(self, "sroscheduleno", "") or "",
                 "fedPayable": 0,
                 "discount": 0,
                 "saleType": self.fbr_sale_type.saletype,
-                "sroItemSerialNo": self.sroitemserialno or ""
+                "sroItemSerialNo": getattr(self, "sroitemserialno", "") or ""
             }
 
             items.append(item_data_single)
