@@ -16,7 +16,8 @@
   "environment",
   "make_items_unique",
   "send_weight",
-  "send_single_item"
+  "send_single_item",
+  "send_fbr_description"
  ],
  "fields": [
   {
@@ -90,11 +91,17 @@
    "fieldname": "send_single_item",
    "fieldtype": "Check",
    "label": "Send Single Item To FBR"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_fbr_description",
+   "fieldtype": "Check",
+   "label": "Send FBR Description"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-11 22:01:40.849605",
+ "modified": "2026-09-17 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Fbr",
  "name": "Fbr Settings Item",

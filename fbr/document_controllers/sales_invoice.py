@@ -152,10 +152,16 @@ class SalesInvoice(SalesInvoiceController):
                         further_tax = self.round_half_up(item.amount * (tax_rate / 100), 2)
                 except IndexError:
                     further_tax = 0
+                    
+                product_description = ""
+                if settings.get("send_fbr_description") and item.get("fbr_description"):
+                    product_description = f"{item.fbr_description}-{item.idx}" if settings.get("make_items_unique") == 1 else item.fbr_description
+                else:
+                    product_description = f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code
 
                 item_data = {
                     "hsCode": item.custom_hs_code,
-                    "productDescription": f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code,
+                    "productDescription": product_description,
                     "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
                     "uoM": uom,
                     "quantity": item.weight if settings.get("send_weight") else item.qty,
