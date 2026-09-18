@@ -117,10 +117,21 @@ class SalesInvoice(SalesInvoiceController):
             except IndexError:
                 further_tax = 0
 
+            rate_string = ""
+            try:
+                if self.fbr_sale_type.tax_exempted:
+                    rate_string = "Exempt" 
+                elif self.fbr_sale_type.descriptive_tax:
+                    rate_string = f"{self.fbr_sale_type.descriptive_tax}"
+                else:
+                    rate_string = f"{cint(self.taxes[0].rate)}%"
+            except:
+                rate_string = ""
+
             item_data_single = {
                 "hsCode": self.custom_hs_code,
                 "productDescription": f"{self.custom_hs_code}",
-                "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
+                "rate": rate_string,
                 "uoM": uom,
                 "quantity": self.round_half_up(self.total_qty, 2),
                 "totalValues": self.round_half_up(self.total + tax_amount, 2),
@@ -159,10 +170,21 @@ class SalesInvoice(SalesInvoiceController):
                 else:
                     product_description = f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code
 
+                rate_string = ""
+                try:
+                    if self.fbr_sale_type.tax_exempted:
+                        rate_string = "Exempt" 
+                    elif self.fbr_sale_type.descriptive_tax:
+                        rate_string = f"{self.fbr_sale_type.descriptive_tax}"
+                    else:
+                        rate_string = f"{cint(self.taxes[0].rate)}%"
+                except:
+                    rate_string = ""
+
                 item_data = {
                     "hsCode": item.custom_hs_code,
                     "productDescription": product_description,
-                    "rate": "Exempt" if self.fbr_sale_type.tax_exempted else f"{cint(self.taxes[0].rate)}%",
+                    "rate": rate_string,
                     "uoM": uom,
                     "quantity": item.weight if settings.get("send_weight") else item.qty,
                     "totalValues": self.round_half_up(item.amount + tax_amount, 2),

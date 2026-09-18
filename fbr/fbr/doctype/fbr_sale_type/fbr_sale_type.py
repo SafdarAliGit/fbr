@@ -6,4 +6,6 @@ from frappe.model.document import Document
 
 
 class FbrSaleType(Document):
-	pass
+	def validate(self):
+		if self.tax_exempted:
+			self.descriptive_tax = None
