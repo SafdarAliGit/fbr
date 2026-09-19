@@ -141,7 +141,7 @@ class SalesInvoice(SalesInvoiceController):
                 "hsCode": self.custom_hs_code,
                 "productDescription": f"{self.custom_hs_code}",
                 "rate": rate_string,
-                "uoM": item.uom,
+                "uoM": self.get_and_set_uom(item.custom_hs_code),
                 "quantity": self.round_half_up(self.total_qty, 2),
                 "totalValues": self.round_half_up(self.total + tax_amount, 2),
                 "valueSalesExcludingST": self.round_half_up(self.total, 2),
@@ -166,7 +166,7 @@ class SalesInvoice(SalesInvoiceController):
                 product_description = ""
                 rate_string = ""
                 fedpayable = 0
-                uom = self.get_and_set_uom(item.custom_hs_code)
+                # uom = self.get_and_set_uom(item.custom_hs_code)
                 tax_amount = self.round_half_up(item.amount * (self.taxes[0].rate / 100), 2)
 
                 try:
@@ -204,7 +204,7 @@ class SalesInvoice(SalesInvoiceController):
                     "hsCode": item.custom_hs_code,
                     "productDescription": product_description,
                     "rate": rate_string,
-                    "uoM": item.uom,
+                    "uoM": self.get_and_set_uom(item.custom_hs_code),
                     "quantity": item.weight if settings.get("send_weight") else item.qty,
                     "totalValues": self.round_half_up(item.amount + tax_amount, 2),
                     "valueSalesExcludingST": self.round_half_up(item.amount, 2),
