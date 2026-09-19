@@ -239,7 +239,7 @@ class SalesInvoice(SalesInvoiceController):
                     hs_code_doc.hs_code = hs_code
                     hs_code_doc.uom = uom
                     hs_code_doc.save()
-                    frappe.throw(f"UOM for HS Code {hs_code} fetched and saved successfully.")
+                    frappe.throw(f"{uom}")
                     return uom
             except Exception:
                 return "Nos"
