@@ -225,9 +225,10 @@ class SalesInvoice(SalesInvoiceController):
         return items
 
     def get_and_set_uom(self, hs_code):
-        hs_code_doc = frappe.new_doc("HS Code")
         if frappe.db.exists("HS Code", hs_code):
             hs_code_doc = frappe.get_doc("HS Code", hs_code)
+        else:
+            hs_code_doc = frappe.new_doc("HS Code")
 
         settings = self.get_settings_item
         api = FBRDigitalInvoicingAPI(settings)
@@ -241,7 +242,10 @@ class SalesInvoice(SalesInvoiceController):
                 hs_code_doc.save()
                 return uom
         except Exception:
-            return "Nos"
+            frappe.log_error(
+                title=f"UOM received {uom}",
+            )
+        return None
 
     @property
     def fbr_sale_type(self):
