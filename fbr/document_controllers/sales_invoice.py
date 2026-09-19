@@ -123,7 +123,7 @@ class SalesInvoice(SalesInvoiceController):
             try:
                 fed_payable = self.taxes[1].rate
                 if fed_payable and fed_payable > 0:
-                    fedpayable = self.round_half_up(item.amount * (fed_payable / 100), 2)
+                    fedpayable = self.round_half_up((item.qty * fed_payable ), 2)
             except IndexError:
                 fedpayable = 0
 
@@ -180,7 +180,7 @@ class SalesInvoice(SalesInvoiceController):
                 try:
                     fed_payable = self.taxes[1].rate
                     if fed_payable and fed_payable > 0:
-                        fedpayable = self.round_half_up(item.amount * (fed_payable / 100), 2)
+                        fedpayable = self.round_half_up((item.qty * fed_payable ), 2)
                 except IndexError:
                     fedpayable = 0
                         
