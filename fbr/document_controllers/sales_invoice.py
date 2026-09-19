@@ -225,27 +225,24 @@ class SalesInvoice(SalesInvoiceController):
         return items
 
     def get_and_set_uom(self, hs_code):
-        if frappe.db.exists("HS Code", hs_code):
-            hs_code_doc = frappe.get_doc("HS Code", hs_code)
-        else:
             hs_code_doc = frappe.new_doc("HS Code")
-
-        settings = self.get_settings_item
-        api = FBRDigitalInvoicingAPI(settings)
-
-        try:
-            response = api.make_request("GET", f"/pdi/v2/HS_UOM?hs_code={hs_code}&annexure_id=3")
-            if response:
-                uom = response[0].get("description")
-                hs_code_doc.hs_code = hs_code
-                hs_code_doc.uom = uom
-                hs_code_doc.save()
-                return uom
-        except Exception:
-            frappe.log_error(
-                title=f"UOM received {uom}",
-            )
-        return None
+            if frappe.db.exists("HS Code", hs_code):
+                hs_code_doc = frappe.get_doc("HS Code", hs_code)
+    
+            settings = self.get_settings_item
+            api = FBRDigitalInvoicingAPI(settings)
+    
+            try:
+                response = api.make_request("GET", f"/pdi/v2/HS_UOM?hs_code={hs_code}&annexure_id=3")
+                if response:
+                    uom = response[0].get("description")
+                    hs_code_doc.hs_code = hs_code
+                    hs_code_doc.uom = uom
+                    hs_code_doc.save()
+                    frappe.throw(f"UOM for HS Code {hs_code} fetched and saved successfully.")
+                    return uom
+            except Exception:
+                return "Nos"
 
     @property
     def fbr_sale_type(self):
