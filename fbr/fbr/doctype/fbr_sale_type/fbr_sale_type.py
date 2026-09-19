@@ -9,3 +9,5 @@ class FbrSaleType(Document):
 	def validate(self):
 		if self.tax_exempted:
 			self.descriptive_tax = None
+		if self.furthertax and self.fedpayable:
+			self.fedpayable = 0

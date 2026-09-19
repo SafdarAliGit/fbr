@@ -107,6 +107,8 @@ class SalesInvoice(SalesInvoiceController):
 
         if settings.send_single_item:
             further_tax = 0
+            rate_string = ""
+            fedpayable = 0
             uom = self.get_and_set_uom(self.custom_hs_code)
             tax_amount = self.round_half_up(self.total * (self.taxes[0].rate / 100), 2)
 
@@ -117,7 +119,14 @@ class SalesInvoice(SalesInvoiceController):
             except IndexError:
                 further_tax = 0
 
-            rate_string = ""
+            try:
+                fed_payable = self.taxes[1].rate
+                if fed_payable and fed_payable > 0:
+                    fedpayable = self.round_half_up(item.amount * (fed_payable / 100), 2)
+            except IndexError:
+                fedpayable = 0
+
+            
             try:
                 if self.fbr_sale_type.tax_exempted:
                     rate_string = "Exempt" 
@@ -142,7 +151,7 @@ class SalesInvoice(SalesInvoiceController):
                 "extraTax": "",
                 "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
                 "sroScheduleNo": getattr(self, "sroscheduleno", "") or "",
-                "fedPayable": 0,
+                "fedPayable": fedpayable if self.fbr_sale_type.fedpayable else 0,
                 "discount": 0,
                 "saleType": self.fbr_sale_type.saletype,
                 "sroItemSerialNo": getattr(self, "sroitemserialno", "") or ""
@@ -154,6 +163,9 @@ class SalesInvoice(SalesInvoiceController):
 
             for item in self.items:
                 further_tax = 0
+                product_description = ""
+                rate_string = ""
+                fedpayable = 0
                 uom = self.get_and_set_uom(item.custom_hs_code)
                 tax_amount = self.round_half_up(item.amount * (self.taxes[0].rate / 100), 2)
 
@@ -163,14 +175,21 @@ class SalesInvoice(SalesInvoiceController):
                         further_tax = self.round_half_up(item.amount * (tax_rate / 100), 2)
                 except IndexError:
                     further_tax = 0
-                    
-                product_description = ""
+
+                try:
+                    fed_payable = self.taxes[1].rate
+                    if fed_payable and fed_payable > 0:
+                        fedpayable = self.round_half_up(item.amount * (fed_payable / 100), 2)
+                except IndexError:
+                    fedpayable = 0
+                        
+                
                 if settings.get("send_fbr_description") and item.get("fbr_description"):
                     product_description = f"{item.fbr_description}-{item.idx}" if settings.get("make_items_unique") == 1 else item.fbr_description
                 else:
                     product_description = f"{item.item_code}-{item.idx}" if settings.get("make_items_unique") == 1 else item.item_code
 
-                rate_string = ""
+                
                 try:
                     if self.fbr_sale_type.tax_exempted:
                         rate_string = "Exempt" 
@@ -195,7 +214,7 @@ class SalesInvoice(SalesInvoiceController):
                     "extraTax": "",
                     "furtherTax": further_tax if self.fbr_sale_type.furthertax else 0,
                     "sroScheduleNo": self.sroscheduleno or "",
-                    "fedPayable": 0,
+                    "fedPayable": fedpayable if self.fbr_sale_type.fedpayable else 0,
                     "discount": 0,
                     "saleType": self.fbr_sale_type.saletype,
                     "sroItemSerialNo": self.sroitemserialno or ""

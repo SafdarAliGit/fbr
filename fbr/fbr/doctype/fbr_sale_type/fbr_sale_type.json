@@ -14,6 +14,7 @@
   "fixednotifiedvalueorretailprice",
   "tax_exempted",
   "furthertax",
+  "fedpayable",
   "descriptive_tax"
  ],
  "fields": [
@@ -63,6 +64,12 @@
    "fieldname": "furthertax",
    "fieldtype": "Check",
    "label": "furtherTax"
+  },
+  {
+   "default": "0",
+   "fieldname": "fedpayable",
+   "fieldtype": "Check",
+   "label": "fedPayable"
   },
   {
    "description": "Tax Exempted, should be unchecked to save value",
