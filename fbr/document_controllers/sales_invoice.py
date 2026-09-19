@@ -26,6 +26,7 @@ class SalesInvoice(SalesInvoiceController):
         data = self.get_mapped_data()
         api_log = frappe.new_doc("FDI Request Log")
         api_log.request_data = frappe.as_json(data, indent=4)
+        frappe.throw(f"{api_log.request_data}")
         api_log.save()
 
         settings = self.get_settings_item
@@ -239,7 +240,6 @@ class SalesInvoice(SalesInvoiceController):
                     hs_code_doc.hs_code = hs_code
                     hs_code_doc.uom = uom
                     hs_code_doc.save()
-                    frappe.throw(f"{uom}")
                     return uom
             except Exception:
                 return "Nos"
